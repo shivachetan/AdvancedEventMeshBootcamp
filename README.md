@@ -46,6 +46,7 @@ There are no prior requirements to this workshop. You can perform this even if y
   - Understanding the basic concepts of event-driven architectures, namely events, queues, topics, event subscriptions, etc.
 
 ## Exercises
+![Pic 3](images/exercise-arch.png)
 
 SAP Integration Suite, advanced event mesh
 
