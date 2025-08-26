@@ -66,6 +66,7 @@ SAP Integration Suite, advanced event mesh
   - [Exercise 2.4 - Configure Standalone Web Application as Second Subscriber](exercises/ex2#exercise-24-configure-standalone-web-application-as-second-subscriber)  
   - [Exercise 2.5 - Run the scenario by publishing the RAP-based S/4 HANA Business Partner Change event, which involves modifying an existing business partner](exercises/ex2#exercise-25-run-the-scenario-by-publishing-the-rap-based-s4-hana-business-partner-change-event-which-involves-modifying-an-existing-business-partner)
     - [Exercise 2.5.1 - Monitor Consumed Messages](exercises/ex2#exercise-251-monitor-consumed-messages)
+  - [Exercise 2.6 - Publish a business partner event using the try me! tool to the topic](exercises/ex2#exercise-26-publish-a-business-partner-event-from-try-me-tool-to-your-topic)
 
 ## Further Read
 
