@@ -309,5 +309,27 @@ As S/4 Hana system published an event to a topic, all queues subscribed to that 
 5. You should also see your entry in the standalone web application. Be aware that if you send a business partner with the same ID, an update of the existing entry will be triggered instead of creating a new entry.
 
    ![Pic](./images/ex3-8.png)
+
+## Exercise 2.6: Publish a business partner event using the try me! tool to the topic
+1. Navigate to the Try Me! tool in advanced event mesh
+2. Under the publish section choose topic and provide the topic `s4/t41/400/ce/groupXX/BusinessPartner/Changed/v1`, replace XX with your user number
+3. Use the below provided json as the message content,
+   `{
+		"type":"group30.BusinessPartner.Changed.v1",
+		"specversion":"1.0",
+		"source":"/default/sap.s4.custom/HE4CLNT400",
+		"id":"81b31f35-f78b-1fd0-9fab-a18758ba42d1",
+		"time":"2025-08-20T00:31:44Z",
+		"datacontenttype":"application/json",
+		"data":
+		{
+			 "BusinessPartner":"S610-A30",
+			 "BusinessPartnerCategory":"2",
+			 "BusinessPartnerFullName":"Sunny 30"
+		}
+	}`	
+
+![Pic](./images/ex2-21.png)
+
    
 **Congratulations, you have completed all the exercises!**
