@@ -59,15 +59,17 @@ SAP Integration Suite, advanced event mesh
  
 - [Exercise 2 - Learn Publish-Subscribe pattern using S/4 HANA, AEM and Cloud Integration](exercises/ex2/)
   - [Exercise 2.1 - Create new queue in Advanced Event Mesh for second subscriber](exercises/ex2#exercise-21---create-new-queue-in-advanced-event-mesh-for-second-subscriber)
-  - [Exercise 2.2 - Configure Publishing of S/4 HANA Business Partner Change event to AEM using RAP based events](exercises/ex2#exercise-22---configure-publishing-of-s4-hana-business-partner-change-event-to-aem-using-rap-based-events)
-  - [Exercise 2.3 - Configure First Subscriber using Cloud Integration capability of SAP Integration Suite](exercises/ex2#exercise-23---configure-first-subscriber-using-cloud-integration-capability-of-sap-integration-suite)
-    - [Exercise 2.3.1 - Setup REST Endpoint](exercises/ex2#exercise-231---setup-rest-endpoint)
-    - [Exercise 2.3.2 - Create Integration Package in Cloud Integration capability of SAP Integration Suite](exercises/ex2#exercise-232---create-integration-package-in-cloud-integration-capability-of-sap-integration-suite)
-    - [Exercise 2.3.3 - Copy, Configure & Deply the Integration Flow](exercises/ex2#exercise-233---copy-configure--deply-the-integration-flow)
-  - [Exercise 2.4 - Configure Standalone Web Application as Second Subscriber](exercises/ex2#exercise-24-configure-standalone-web-application-as-second-subscriber)  
-  - [Exercise 2.5 - Run the scenario by publishing the RAP-based S/4 HANA Business Partner Change event, which involves modifying an existing business partner](exercises/ex2#exercise-25-run-the-scenario-by-publishing-the-rap-based-s4-hana-business-partner-change-event-which-involves-modifying-an-existing-business-partner)
-    - [Exercise 2.5.1 - Monitor Consumed Messages](exercises/ex2#exercise-251-monitor-consumed-messages)
-  - [Exercise 2.6 - Publish a business partner event using the try me! tool to the topic](exercises/ex2#exercise-26-publish-a-business-partner-event-from-try-me-tool-to-your-topic)
+  <!-- - [Exercise 2.2 - Configure Publishing of S/4 HANA Business Partner Change event to AEM using RAP based events](exercises/ex2#exercise-22---configure-publishing-of-s4-hana-business-partner-change-event-to-aem-using-rap-based-events) -->
+  - [Exercise 2.2 - Configure First Subscriber using Cloud Integration capability of SAP Integration Suite](exercises/ex2#exercise-22---configure-first-subscriber-using-cloud-integration-capability-of-sap-integration-suite)
+    - [Exercise 2.2.1 - Setup REST Endpoint](exercises/ex2#exercise-221---setup-rest-endpoint)
+    - [Exercise 2.2.2 - Create Integration Package in Cloud Integration capability of SAP Integration Suite](exercises/ex2#exercise-222---create-integration-package-in-cloud-integration-capability-of-sap-integration-suite)
+    - [Exercise 2.2.3 - Copy, Configure & Deploy the Integration Flow](exercises/ex2#exercise-223---copy-configure--deploy-the-integration-flow)
+  - [Exercise 2.3 - Configure Standalone Web Application as Second Subscriber](exercises/ex2#exercise-23-configure-standalone-web-application-as-second-subscriber)  
+  <!-- - [Exercise 2.5 - Run the scenario by publishing the RAP-based S/4 HANA Business Partner Change event, which involves modifying an existing business partner](exercises/ex2#exercise-25-run-the-scenario-by-publishing-the-rap-based-s4-hana-business-partner-change-event-which-involves-modifying-an-existing-business-partner) -->
+    <!-- - [Exercise 2.5.1 - Monitor Consumed Messages](exercises/ex2#exercise-251-monitor-consumed-messages) -->
+  - [Exercise 2.4 - Publish a business partner event using the try me! tool to the topic](exercises/ex2#exercise-24-publish-a-business-partner-event-using-the-try-me-tool-to-the-topic)
+    - [Exercise 2.4.1 - Monitor Consumed Messages](exercises/ex2#exercise-241-monitor-consumed-messages)
+
 
 ## Further Read
 

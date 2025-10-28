@@ -1,5 +1,5 @@
 ## Exercise 2 - Learn Publish-Subscribe pattern using S/4 HANA, AEM and Cloud Integration
-In this exercise, we will learn an end-to-end publish-subscribe pattern using S/4 HANA, AEM and Cloud Integration. We will publish a Business Partner Change event from S/4Hana to an AEM topic using RAP-based events. The event will then be sent from the topic to two queues, which act as topic subscribers. Finally, two independent subscribers will receive the event by listening to their respective queues.
+In this exercise, we will learn an end-to-end publish-subscribe pattern using AEM and Cloud Integration. We will publish a Business Partner Change event from TryMe client to an AEM topic. The event will then be sent from the topic to two queues, which act as topic subscribers. Finally, two independent subscribers will receive the event by listening to their respective queues.
 
 ## Exercise 2.1 - Create new Queue in Advanced Event Mesh for second subscriber
 After completing these steps you will have created a queue in Advanced Event Mesh.
@@ -43,7 +43,7 @@ After completing these steps you will have created a queue in Advanced Event Mes
 
 	![](./images/ex3-3-7.png)
 
-## Exercise 2.2 - Configure Publishing of S/4 HANA Business Partner Change event to AEM using RAP based events
+<!-- ## Exercise 2.2 - Configure Publishing of S/4 HANA Business Partner Change event to AEM using RAP based events
 
 1. Log into **WTS**
 
@@ -101,12 +101,12 @@ After completing these steps you will have created a queue in Advanced Event Mes
     ![](assets/20250819_001130_image.png)
 
 12. Click on **Save** and **Activate** the object.
-    <br>Use the activation button ![](assets/20250819_001428_image.png) from the tool bar
+    <br>Use the activation button ![](assets/20250819_001428_image.png) from the tool bar -->
 
-## Exercise 2.3 - Configure First Subscriber using Cloud Integration capability of SAP Integration Suite
+## Exercise 2.2 - Configure First Subscriber using Cloud Integration capability of SAP Integration Suite
 In this exercise, an Integration Flow is added as a subscriber via the Advanced Event Mesh adapter using the Solace Messaging Format (SMF). Integration flows can be used to mediate events, for example, to perform message transformation or protocol conversion steps.
 
-### Exercise 2.3.1 - Setup REST Endpoint
+### Exercise 2.2.1 - Setup REST Endpoint
 
 Before we start building our integration flow, we will "provision" a simple HTTP endpoint where we will send the message.
 
@@ -119,9 +119,9 @@ Before we start building our integration flow, we will "provision" a simple HTTP
         <i>webhook.site example</i>
     </p>
 
-### Exercise 2.3.2 - Create Integration Package in Cloud Integration capability of SAP Integration Suite
+### Exercise 2.2.2 - Create Integration Package in Cloud Integration capability of SAP Integration Suite
 
-1. Open the SAP Integration Suite landing page via this [link](https://cpisuite-europe-03.integrationsuite.cfapps.eu20-001.hana.ondemand.com/shell/home).
+1. Open the SAP Integration Suite landing page via Integration suite link provided in [excel](https://sap-my.sharepoint.com/:x:/r/personal/kumar_amar_sap_com/Documents/Integration%20Suite%20Product%20Training%202025/SAP_IS_ProdTrain_2025_System_ForUsers.xlsx?d=w16fc76d40d70409e8aa46bba1311e28c&csf=1&web=1&e=lLzida)
 
    ![](./images/ex2-1.png)
 
@@ -137,7 +137,7 @@ Before we start building our integration flow, we will "provision" a simple HTTP
 
    ![](./images/ex2-3.png)
 
-### Exercise 2.3.3 - Copy, Configure & Deply the Integration Flow
+### Exercise 2.2.3 - Copy, Configure & Deploy the Integration Flow
 
 1. Navigate to **Design > Integrations and APIs**.
 
@@ -192,7 +192,7 @@ Before we start building our integration flow, we will "provision" a simple HTTP
     ![](./images/ex2-16.png)
 
 
-## Exercise 2.4: Configure Standalone Web Application as Second Subscriber
+## Exercise 2.3: Configure Standalone Web Application as Second Subscriber
 In this exercise you will configure the Business Partner Web Application. On this Website you will subscribe to the queue created in Exercise 2.1 via your web browser. Every business partner change published to your queue will be shown on the web application in real-time.
 
 1. Open the [Business Partner Web Applicaiton](https://sap-cpisuite-europe-01n-cpisuite-europe-01-aem-demo-client.cfapps.eu10.hana.ondemand.com/app/index.html#/businessPartner).
@@ -207,7 +207,7 @@ In this exercise you will configure the Business Partner Web Application. On thi
 
    ![Pic](./images/ex3-6.png)
 
-## Exercise 2.5: Run the scenario by publishing the RAP-based S/4 HANA Business Partner Change event, which involves modifying an existing business partner
+<!-- ## Exercise 2.5: Run the scenario by publishing the RAP-based S/4 HANA Business Partner Change event, which involves modifying an existing business partner
 In this exercise we will publish a Business Partner Change event in S/4Hana that will trigger both the subscribers automatically.
 
 1. **Access T41** : Open SAP GUI from WTS
@@ -308,28 +308,58 @@ As S/4 Hana system published an event to a topic, all queues subscribed to that 
 
 5. You should also see your entry in the standalone web application. Be aware that if you send a business partner with the same ID, an update of the existing entry will be triggered instead of creating a new entry.
 
-   ![Pic](./images/ex3-8.png)
+   ![Pic](./images/ex3-8.png) -->
 
-## Exercise 2.6: Publish a business partner event using the try me! tool to the topic
+## Exercise 2.4: Publish a business partner event using the try me! tool to the topic
 1. Navigate to the Try Me! tool in advanced event mesh
 2. Under the publish section choose topic and provide the topic `s4/t41/400/ce/groupXX/BusinessPartner/Changed/v1`, replace XX with your user number
 3. Use the below provided json as the message content,
-   `{
-		"type":"group30.BusinessPartner.Changed.v1",
-		"specversion":"1.0",
-		"source":"/default/sap.s4.custom/HE4CLNT400",
-		"id":"81b31f35-f78b-1fd0-9fab-a18758ba42d1",
-		"time":"2025-08-20T00:31:44Z",
-		"datacontenttype":"application/json",
-		"data":
-		{
-			 "BusinessPartner":"S610-A30",
-			 "BusinessPartnerCategory":"2",
-			 "BusinessPartnerFullName":"Sunny 30"
+   ```json
+	{
+		"specversion": "1.0",
+		"type": "group30.BusinessPartner.Changed.v1",
+		"source": "/default/sap.s4.custom/HE4CLNT400",
+		"datacontenttype": "application/json",
+		"id": "iopoR}Qa7k{IeB7xyLljsm",
+		"time": "2024-07-23T15:09:31Z",
+		"data": {
+			"BusinessPartner": "A10",
+			"LastName": "John",
+			"FirstName": "Doe",
+			"Country": "DE",
+			"City": "Walldorf",
+			"PostCode": "69190",
+			"Street": "Dietmar-Hopp-Allee",
+			"HouseNumber": "16"
 		}
-	}`	
+	}
+	
+	```
 
 ![Pic](./images/ex2-21.png)
+
+### Exercise 2.4.1. Monitor Consumed Messages
+As S/4 Hana system published an event to a topic, all queues subscribed to that topic have received the event. This means the integration flow configured in Exercise 2.3 is executed and also the standalone web application should have received the event.
+
+1. Navigate to "**Monitor-> Integrations and APIs**". Open the **"Manage Integration Content"** tile.
+
+    ![](./images/ex2-17.png)
+
+2. Search for your integration flow. It should be in **"Started"** status. Press **"Monitor Message Processing"** to view the processed Messages.
+
+    ![](./images/ex2-18.png)
+
+3. You should see at least one Messages in the list with Status **"Completed"**.
+
+   ![](./images/ex2-19.png)
+
+4. Open the webhook site created in Exercise 2.1. Here you should the messages sent from Cloud Integration. Notice the format and structure was slightly changed by the integrtation flow mapping.
+
+   ![](./images/ex2-20.png)
+
+5. You should also see your entry in the standalone web application. Be aware that if you send a business partner with the same ID, an update of the existing entry will be triggered instead of creating a new entry.
+
+   ![Pic](./images/ex3-8.png)
 
    
 **Congratulations, you have completed all the exercises!**
