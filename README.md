@@ -1,21 +1,25 @@
-# Event-Driven Architecture with SAP Integration Suite, Advanced Event Mesh
+# SAP Integration Suite Product Training 2026: Build your <span style="color:red;"> own </span> event-driven scenario with advanced event mesh
+
+![Pic 1](images/ISF-1.png)
 
 ## Description
 
-An event-driven architecture is a software architecture using events as the core means for interaction between its software components. One of the main components of an EDA are Event Brokers. SAP's flagship event broker is 'SAP Integration Suite, advanced event mesh'.
+SAP Integration Suite, advanced event mesh is SAP's flagship event broker. Actually, it is more than just that: it allows you to create meshes of event brokers and to use a state-of-the-art eventing platform, operations and event management features. Explore these powerful features of SAP Integration Suite, advanced event mesh. 
 
-In this session we will take a deep dive into 'SAP Integration Suite, advanced event mesh'.
+The goal is for you to learn what you need for an event-driven scenario in an end-to-end way. Start with core event-driven architecture elements like queues and topics, then dive into advanced topics and filtering to simulate a social media–like experience. Next you can try out advanced capabilities such as event replay. You will as well learn about the features and tools that allow you to achieve the event-driven hockey stick - and before that you learn what that is. In the starter scenario you can simulate events using AEM tooling on both source and consumer side. AEM offers the TryMe! tool for that. On top, you can install a small local HTML based tool for local event consumption.
+
+If you want to go beyond, in the advanced track you can have a look at on-ramping and off-ramping events to the mesh using the Micro-Integration functionality of Advanced Event Mesh.
 
 ## Overview
 
-![Pic 2](images/overview.png)
+![Pic 2](images/ISF-2.png)
 
-SAP Integration Suite, advanced event mesh is a fully managed event streaming and management service that enables enterprise-wide and enterprise-grade event-driven architecture. It is a full blown, general purpose Event Mesh. AEM offers enterprise-grade performance, reliability, security and governance. It scales to very large use cases – and very means very very very in this case.
+SAP Integration Suite, advanced event mesh is a fully managed event streaming and management service that enables enterprise-wide and enterprise-grade event-driven architecture. It is a full blown, general purpose event mesh. AEM offers enterprise-grade performance, reliability, security and governance. It scales to very large use cases – and very means very very very in this case.
 
 - Advanced Event Mesh is a distributed mesh of event brokers that can be deployed across environments, both in the cloud and on-premise
-- It offers a full-purpose set of eventing services covering all relevant use cases
+- It offers a full purpose set of eventing services covering all relevant use cases
 - AEM supports event streaming, event management and event monitoring
-- Brokers fully scale as required and come in T-shirt sizes to perfectly fit different needs
+- Brokers fully scale as required and come in different broker sizes to perfectly fit different needs
 
 SAP Integration Suite, advanced event mesh
 
@@ -26,8 +30,8 @@ SAP Integration Suite, advanced event mesh
 - provides sophisticated authentication and security features like Kerberos, OAuth or TLS
 - offers fine-grained filtering options
 - allows for real-time monitoring, capacity insights and distributed tracing
-- provides support for all relevant protocols like JMS, REST, AMQP and MQTT, plus SMF
-- allows to start small and upgrade to bigger tier metric when your business grows
+- provides support for all relevant protocols like JMS, REST, AMQP and MQTT, plus SMF.
+- allows to start small and upgrade to bigger T-shirt sizes when your business grows
 - provides an outstanding performance up to billions of events per day
 
 SAP Integration Suite, advanced event mesh features touched, some just shortly, some in more detail, include:
@@ -36,60 +40,118 @@ SAP Integration Suite, advanced event mesh features touched, some just shortly, 
 - SAP Integration Suite, advanced event mesh Cluster Manager
 - SAP Integration Suite, advanced event mesh Mesh Manager
 - SAP Integration Suite, advanced event mesh Event Designer and Event Management
-- SAP Integration Suite, advanced event mesh Try Me!
+- SAP Integration Suite, advanced event mesh Try Me! tool
+- SAP Integration Suite, advanced event mesh Event Portal
 
 ## Requirements
 
-There are no prior requirements to this workshop. You can perform this even if you do not have any experience with integration platform from SAP. However, you will be able to derive increased value from this session if you have some knowledge on the following:
-  - What 'SAP Integration Suite' is all about and how it helps with enterprise-wide integration needs.
-  - Basic understanding of 'SAP Integration Suite, advanced event mesh'.
-  - Understanding the basic concepts of event-driven architectures, namely events, queues, topics, event subscriptions, etc.
+- Understanding the basics of event-driven architectures, namely events, queues, topics, event subscriptions ...
+- You would be able to execute most of the exercises without prior experience by just following the descriptions. For taking value out of the chance to explore Advanced Event Mesh some experience with event-driven architectures is recommended.
+- Important: this session offers a main track on beginner level. On top of that, it offers a deep dive topic that typically requires at least advanced know-how. If you follow the main track and add the Micro-Integration exercise, you are well equipped to bring events into the mesh from external sources, distribute them via the broker based on topics and filtering, and consume them. In a real world scenario you would obviously have to replace the TryMe! tool with a real consumer. This is very straighforward though - as you could see by adding the HTML-based consumer to your scenario.
 
 ## Exercises
-![Pic 3](images/exercise-arch.png)
+
+![Pic 3](images/ISF-3.png)
+
+### MAIN TRACK (work on exercises in the given order)
+
+This is the main track that is geared at beginner level. Start from the beginning and follow the flow of the exercises.
+
+Preparation and Setup
+
+- [Getting Started](exercise/ex0/)
 
 SAP Integration Suite, advanced event mesh
 
-- [Exercise 1 - Explore SAP Integration Suite, advanced event mesh](exercises/ex1/)
+- [Exercise 1 - Explore SAP Integration Suite, advanced event mesh](exercise/ex1/README.md)
 
-  - [Exercise 1.1 - Log into Advanced Event Mesh and Explore it](exercises/ex1#exercise-11---log-into-advanced-event-mesh-and-explore-it)
-  - [Exercise 1.2 - Create a Queue in Advanced Event Mesh ](exercises/ex1#exercise-12---create-a-queue-in-advanced-event-mesh)
-  - [Exercise 1.3 - Create a Queue Subscription in Advanced Event Mesh](exercises/ex1#exercise-13---create-a-queue-subscription-in-advanced-event-mesh)
-  - [Exercise 1.4 - Send an event from the Try Me! tool to your Topic](exercises/ex1#exercise-14---send-an-event-from-the-try-me-tool-to-your-topic)
- 
-- [Exercise 2 - Learn Publish-Subscribe pattern using S/4 HANA, AEM and Cloud Integration](exercises/ex2/)
-  - [Exercise 2.1 - Create new queue in Advanced Event Mesh for second subscriber](exercises/ex2#exercise-21---create-new-queue-in-advanced-event-mesh-for-second-subscriber)
-  <!-- - [Exercise 2.2 - Configure Publishing of S/4 HANA Business Partner Change event to AEM using RAP based events](exercises/ex2#exercise-22---configure-publishing-of-s4-hana-business-partner-change-event-to-aem-using-rap-based-events) -->
-  - [Exercise 2.2 - Configure First Subscriber using Cloud Integration capability of SAP Integration Suite](exercises/ex2#exercise-22---configure-first-subscriber-using-cloud-integration-capability-of-sap-integration-suite)
-    - [Exercise 2.2.1 - Setup REST Endpoint](exercises/ex2#exercise-221---setup-rest-endpoint)
-    - [Exercise 2.2.2 - Create Integration Package in Cloud Integration capability of SAP Integration Suite](exercises/ex2#exercise-222---create-integration-package-in-cloud-integration-capability-of-sap-integration-suite)
-    - [Exercise 2.2.3 - Copy, Configure & Deploy the Integration Flow](exercises/ex2#exercise-223---copy-configure--deploy-the-integration-flow)
-  - [Exercise 2.3 - Configure Standalone Web Application as Second Subscriber](exercises/ex2#exercise-23-configure-standalone-web-application-as-second-subscriber)  
-  <!-- - [Exercise 2.5 - Run the scenario by publishing the RAP-based S/4 HANA Business Partner Change event, which involves modifying an existing business partner](exercises/ex2#exercise-25-run-the-scenario-by-publishing-the-rap-based-s4-hana-business-partner-change-event-which-involves-modifying-an-existing-business-partner) -->
-    <!-- - [Exercise 2.5.1 - Monitor Consumed Messages](exercises/ex2#exercise-251-monitor-consumed-messages) -->
-  - [Exercise 2.4 - Publish a business partner event using the try me! tool to the topic](exercises/ex2#exercise-24-publish-a-business-partner-event-using-the-try-me-tool-to-the-topic)
-    - [Exercise 2.4.1 - Monitor Consumed Messages](exercises/ex2#exercise-241-monitor-consumed-messages)
+    - [Exercise 1.1 - Log into Advanced Event Mesh and Explore it](exercise/ex1/README.md#exercise-11---log-into-advanced-event-mesh-and-explore-it)
+    - [Exercise 1.2 - Create a Queue in Advanced Event Mesh ](exercise/ex1/README.md#exercise-12---create-a-queue-in-advanced-event-mesh)
+    - [Exercise 1.3 - Create a Subscription in Advanced Event Mesh](exercise/ex1/README.md#exercise-13---create-a-queue-subscription-in-advanced-event-mesh)
+    - [Exercise 1.4 - Send an event from the Try Me! Tool to your Topic](exercise/ex1/README.md#exercise-14---send-an-event-from-the-try-me-tool-to-your-topic)
+    - [Exercise 1.5 - Consume events from an external consumer app](exercise/ex1/README.md#exercise-15---consume-events-using-an-external-consumer-app)
 
+- [Exercise 2 - Topic Hierarchies](exercise/ex2/README.md)
 
-## Further Read
+    - [Exercise 2.1 - Learn about Topic Hierarchies and Wildcards](exercise/ex2/README.md#exercise-21-learn-about-topic-hierarchies-and-wildcards)
+    - [Exercise 2.2 - Practice Topic Hierarchies and Wildcards using Try Me !](exercise/ex2/README.md#exercise-22-practice-topic-hierarchies-and-wildcards-using-tryme---berlin-edition) 
 
-A lot of material is available to get up to speed with 'SAP Integration Suite, advanced event mesh' is available.
+- [Exercise 3 - Persistent and Non-Persistent Quality of Service](exercise/ex3/README.md)
+
+    - [Exercise 3.1 - Learn about Persistency and QoS](exercise/ex3/README.md#exercise-31-learn-about-delivery-modes-persistency-and-quality-of-service)
+    - [Exercise 3.2 - Experimenting with Persistency](exercise/ex3/README.md#exercise-32-experimenting-with-persistency)
+
+- [Exercise 4 - Event Replay](exercise/ex4/README.md)
+
+    - [Exercise 4.1 - Learn about Replay](exercise/ex4/README.md#exercise-41-learn-about-replay)
+    - [Exercise 4.2 - Experimenting with Replay](exercise/ex4/README.md#exercise-42-experimenting-with-replay)
+
+- [Exercise 5 - The Event-Driven Hockey Stick](exercise/ex5/README.md)
+
+    - [Exercise 5.1 - Learn about the Event-Driven Hockey Stick](exercise/ex5/README.md#exercise-51-learn-about-the-event-driven-hockey-stick)
+    - [Exercise 5.2 - Explore Events in the SAP Business Accelerator Hub](exercise/ex5/README.md#exercise-52-explore-events-in-the-sap-business-accelerator-hub)
+    - [Exercise 5.3 - Experiment with the Event Portal](exercise/ex5/README.md#exercise-53-experiment-with-the-event-portal)
+
+### Deep Dive Topics 
+
+The Deep Dive track contains advanced topics that typically require at least advanced know-how. You can pick a single topic, or work on both topics in whatever order you like.
+
+- [Exercise 6 - Micro-Integrations](exercise/ex6/README.md)
+
+    - [Exercise 6.1 - Micro-Integration Use Cases](exercise/ex6/README.md#61---micro-integration-use-cases)
+    - [Exercise 6.2 - Exploring Micro-Integrations](exercise/ex6/README.md#62---exploring-micro-integrations)
+    - [Exercise 6.3 - Getting familiar with the structure of a Micro-Integration](exercise/ex6/README.md#63---getting-familiar-with-the-structure-of-a-micro-integration)
+    - [Exercise 6.4 - Configuring and deploying a flow in an SFTP Source Micro-Integration](exercise/ex6/README.md#64---configuring-and-deploying-a-flow-in-an-sftp-source-micro-integration)
+    - [Exercise 6.5 - Micro-Integration Licensing (Optional)](exercise/ex6/README.md#65---micro-integration-licensing-optional)
+
+- [Exercise 7 - Learn Publish-Subscribe pattern using S/4 HANA, AEM and Cloud Integration](exercise/ex7/README.md)
+
+    - [Exercise 7.1 - Create new Queue in Advanced Event Mesh for second subscriber](exercise/ex7/README.md#exercise-71---create-new-queue-in-advanced-event-mesh-for-second-subscriber)
+    - [Exercise 7.2 - Configure First Subscriber using Cloud Integration capability of SAP Integration Suite](exercise/ex7/README.md#exercise-72---configure-first-subscriber-using-cloud-integration-capability-of-sap-integration-suite)
+    - [Exercise 7.3 - Configure Standalone Web Application as Second Subscriber](exercise/ex7/README.md#exercise-73-configure-standalone-web-application-as-second-subscriber)
+    - [Exercise 7.4 - Publish a business partner event using the try me! tool to the topic](exercise/ex7/README.md#exercise-74-publish-a-business-partner-event-using-the-try-me-tool-to-the-topic)
+
+## User Data and Password
+
+In order to log into Advanced Event Mesh, you can use the below email address with XXX replaced with your group number.
+
+handson_XXX@education.cloud.sap (e.g. handson_012@education.cloud.sap)
+
+The initial password will be provided to you by the moderators.
+
+When you log in for the first time, you can enter a password of your choice.
+
+## Background Material
+
+In case that you would like to dig deeper into event-driven architecture: a lot of material to get up to speed with SAP Integration Suite, advanced event mesh and EDA in general is available. Please find a selection below:
 
 - Blogs
 
-  - [SAPs Event-Driven Ecosystem](https://blogs.sap.com/2022/09/01/saps-event-driven-ecosystem-revisited/)
-  - [Advanced Event Mesh](https://blogs.sap.com/2022/10/28/turn-your-erp-into-a-team-player-introducing-sap-integration-suite-advanced-event-mesh/)
-  - [Advanced Event Mesh Details](https://blogs.sap.com/2023/10/26/sap-advanced-event-mesh-create-your-first-event-broker/)
+    - [AEM Blog Post Collection](https://community.sap.com/t5/technology-blog-posts-by-sap/sap-integration-suite-advanced-event-mesh-blog-collection/ba-p/14111943)
+
+- Tutorials and Missions
+
+    - [Discovery Center Mission: Get started with AEM](https://discovery-center.cloud.sap/missiondetail/4582/4870/)
+    - [Developer Center: AEM with SAP Integration Suite, SAP S/4HANA Cloud, SAP Build Proces Automation](https://developers.sap.com/tutorials/mission-get-started-with-sap-integration-suite-advanced-event-mesh/)
 
 - Videos
 
-  - [Discover Event-driven Integrations](https://www.youtube.com/watch?v=r9lyC_2ss2U)
-  - [SAP on Azure](https://www.youtube.com/watch?v=NNrzXbX3mk0)
+    - [Devtoberfest 2024: Discover SAP Event Sources for Advanced Event Mesh](https://www.youtube.com/watch?v=NujHueCBDOw)
+    - [Devtoberfest 2025: Hands-on session: practical demonstration of the Event Add-On for ERP](https://www.youtube.com/watch?v=vwzqNLISvHo)
 
 - Documentation
 
-  - [Help](https://help.pubsub.em.services.cloud.sap/Cloud/cloud-lp.htm)
+    - [Help](https://help.pubsub.em.services.cloud.sap/Cloud/cloud-lp.htm)
+    - [SAP Discovery Center - AEM](https://discovery-center.cloud.sap/serviceCatalog/advanced-event-mesh?region=all)
+    - [Advanced Event Mesh Tutorials](https://help.pubsub.em.services.cloud.sap/Cloud/ggs_signup.htm)
+
+## Getting Started
+
+Please continue with [Exercise 0](exercise/ex0/README.md)
+
+## How to obtain support
+
+Support for the content in this repository is available during the actual time of the online session for which this content has been designed. Otherwise, you may request support via the [Issues](../../issues) tab.
 
 ## License
-
-Copyright (c) 2024 SAP SE or an SAP affiliate company. All rights reserved. This project is licensed under the Apache Software License, version 2.0 except as noted otherwise in the [LICENSE](LICENSES/Apache-2.0.txt) file.
+Copyright (c) 2026 SAP SE or an SAP affiliate company. All rights reserved. This project is licensed under the Apache Software License, version 2.0 except as noted otherwise in the [LICENSE](LICENSES/Apache-2.0.txt) file.
