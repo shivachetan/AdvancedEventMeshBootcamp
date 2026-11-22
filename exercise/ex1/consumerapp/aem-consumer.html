@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AEM Event Consumer</title>
+  <style>
+    /* ── CSS custom properties ─────────────────────────────── */
+    :root {
+      --bg-page:        #0f1117;
+      --bg-card:        #1a1d27;
+      --bg-card-hover:  #21253a;
+      --bg-header:      #13161f;
+      --bg-input:       #0f1117;
+      --bg-banner:      #0d1526;
+      --accent:         #2563eb;
+      --accent-dim:     #1d4ed8;
+      --accent-hover:   #3b82f6;
+      --text-primary:   #e8eaf2;
+      --text-secondary: #8b90a8;
+      --text-dim:       #555a72;
+      --border:         #2a2d3e;
+      --border-focus:   #2563eb;
+      --error:          #ff5f57;
+      --warning:        #ffb340;
+      --success:        #32d74b;
+      --json-key:       #79b8ff;
+      --json-string:    #85e89d;
+      --json-number:    #f97583;
+      --json-bool:      #c88dff;
+      --json-null:      #79b8ff;
+      --shadow:         0 2px 12px rgba(0,0,0,0.4);
+      --radius:         8px;
+      --radius-sm:      4px;
+      --font-ui:        system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono:      'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+    }
+    :root.light {
+      --bg-page:        #f4f5f8;
+      --bg-card:        #ffffff;
+      --bg-card-hover:  #f0f2f7;
+      --bg-header:      #ffffff;
+      --bg-input:       #ffffff;
+      --bg-banner:      #eff6ff;
+      --accent:         #2563eb;
+      --accent-dim:     #1d4ed8;
+      --accent-hover:   #3b82f6;
+      --text-primary:   #1a1d27;
+      --text-secondary: #555a72;
+      --text-dim:       #8b90a8;
+      --border:         #d4d8e8;
+      --border-focus:   #2563eb;
+      --json-key:       #0050a0;
+      --json-string:    #1a7a40;
+      --json-number:    #b5000f;
+      --json-bool:      #7000b5;
+      --json-null:      #0050a0;
+      --shadow:         0 2px 8px rgba(0,0,0,0.12);
+    }
+
+    /* ── Reset & base ──────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%;
+      background: var(--bg-page);
+      color: var(--text-primary);
+      font-family: var(--font-ui);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+    button {
+      font-family: inherit;
+      font-size: 14px;
+      cursor: pointer;
+      border: none;
+      border-radius: var(--radius-sm);
+      transition: background 0.15s, opacity 0.15s;
+    }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    input, select {
+      font-family: inherit;
+      font-size: 14px;
+      background: var(--bg-input);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 7px 10px;
+      outline: none;
+      width: 100%;
+      transition: border-color 0.15s;
+    }
+    input:focus, select:focus { border-color: var(--border-focus); }
+    select option { background: var(--bg-card); }
+    label { display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 4px; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Layout ────────────────────────────────────────────── */
+    #app {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+      overflow: hidden;
+    }
+    #main-col {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Header ────────────────────────────────────────────── */
+    #header {
+      background: var(--bg-header);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    #header h1 {
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+      flex: 1;
+    }
+    #header h1 span { color: var(--accent); }
+    #status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      background: var(--bg-card);
+    }
+    #status-badge.connected  { border-color: var(--success); color: var(--success); }
+    #status-badge.connecting { border-color: var(--warning); color: var(--warning); }
+    #status-badge.error      { border-color: var(--error);   color: var(--error); }
+    .badge-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+    .badge-dot.pulse { animation: pulse 1.2s infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+    #theme-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 5px 10px;
+      font-size: 13px;
+    }
+    #theme-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── Banners ───────────────────────────────────────────── */
+    #banners { background: var(--bg-page); }
+    .banner {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 20px;
+      font-size: 13px;
+      border-bottom: 1px solid var(--border);
+      animation: slideDown 0.2s ease;
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: none; }
+    }
+    .banner.info    { background: var(--bg-banner); color: var(--text-primary); }
+    .banner.error   { background: #2a0f0d; color: var(--error);   border-color: #4a1a17; }
+    .banner.warning { background: #251a00; color: var(--warning); border-color: #3a2800; }
+    .banner.success { background: #0d2a10; color: var(--success); border-color: #1a3d1e; }
+    .banner-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+    .banner-body { flex: 1; }
+    .banner-body strong { display: block; margin-bottom: 2px; }
+    .banner-close {
+      background: transparent;
+      color: inherit;
+      opacity: 0.6;
+      font-size: 16px;
+      padding: 0 4px;
+      line-height: 1;
+    }
+    .banner-close:hover { opacity: 1; }
+
+    /* ── Config panel ──────────────────────────────────────── */
+    #config-panel {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+    }
+    #config-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 13px;
+      padding: 10px 20px;
+      text-align: left;
+      border-radius: 0;
+    }
+    #config-toggle:hover { color: var(--text-primary); background: var(--bg-card-hover); }
+    #config-toggle-icon { transition: transform 0.2s; }
+    #config-toggle-icon.open { transform: rotate(90deg); }
+    #config-form {
+      padding: 16px 20px 20px;
+      display: none;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px 20px;
+    }
+    #config-form.visible { display: grid; }
+    .field { display: flex; flex-direction: column; }
+    .field.full { grid-column: 1 / -1; }
+    .field-hint {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 3px;
+    }
+    .remember-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .remember-row input[type=checkbox] { width: auto; }
+
+    /* ── Controls ──────────────────────────────────────────── */
+    #controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: var(--bg-header);
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      padding: 7px 18px;
+      font-weight: 500;
+    }
+    .btn-primary:hover:not(:disabled) { background: var(--accent-hover); }
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+    }
+    .btn-secondary:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+    .btn-secondary.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(37,99,235,0.1);
+    }
+    .btn-danger {
+      background: transparent;
+      color: var(--error);
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+    }
+    .btn-danger:hover:not(:disabled) { border-color: var(--error); background: rgba(255,95,87,0.08); }
+    #msg-count { margin-left: auto; font-size: 13px; color: var(--text-secondary); }
+
+    /* ── Message feed ──────────────────────────────────────── */
+    #message-feed {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #message-feed.table-mode {
+      padding: 0;
+      display: block;
+    }
+    #empty-state {
+      margin: auto;
+      text-align: center;
+      color: var(--text-dim);
+      padding: 40px 20px;
+    }
+    #empty-state .empty-icon { font-size: 40px; margin-bottom: 12px; }
+    #empty-state p { font-size: 14px; }
+    .msg-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      animation: cardIn 0.18s ease;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+    }
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: none; }
+    }
+    .msg-card:hover { border-color: var(--accent); }
+    .msg-card.selected { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(37,99,235,0.25); }
+    .msg-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: var(--bg-header);
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .msg-time   { font-weight: 600; color: var(--text-primary); }
+    .msg-source {
+      background: rgba(37,99,235,0.15);
+      color: var(--accent);
+      border-radius: 3px;
+      padding: 1px 6px;
+    }
+    .msg-type {
+      background: var(--bg-page);
+      border-radius: 3px;
+      padding: 1px 6px;
+    }
+    .msg-actions { margin-left: auto; display: flex; gap: 4px; }
+    .msg-action-btn {
+      background: transparent;
+      color: var(--text-dim);
+      font-size: 13px;
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+    .msg-action-btn:hover { color: var(--text-primary); background: var(--bg-card); }
+    .msg-body {
+      padding: 10px 12px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .msg-body pre {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .json-key    { color: var(--json-key); }
+    .json-string { color: var(--json-string); }
+    .json-number { color: var(--json-number); }
+    .json-bool   { color: var(--json-bool); }
+    .json-null   { color: var(--json-null); }
+
+    /* ── Table view ────────────────────────────────────────── */
+    #msg-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    #msg-table thead tr {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: var(--bg-header);
+    }
+    #msg-table th {
+      text-align: left;
+      padding: 8px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    #msg-table td {
+      padding: 7px 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    #msg-table tbody tr {
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+    #msg-table tbody tr:hover { background: var(--bg-card-hover); }
+    #msg-table tbody tr.selected { background: rgba(37,99,235,0.1); }
+    .tbl-num   { color: var(--text-dim); font-family: var(--font-mono); font-size: 12px; width: 50px; }
+    .tbl-time  { color: var(--text-primary); font-family: var(--font-mono); font-size: 12px; white-space: nowrap; width: 110px; }
+    .tbl-src   { max-width: 180px; }
+    .tbl-src span {
+      background: rgba(37,99,235,0.15);
+      color: var(--accent);
+      border-radius: 3px;
+      padding: 1px 6px;
+      font-size: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: inline-block;
+      max-width: 100%;
+    }
+    .tbl-type span {
+      background: var(--bg-card);
+      border-radius: 3px;
+      padding: 1px 6px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .tbl-preview {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-secondary);
+      max-width: 0;
+      width: 99%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ── Detail panel ──────────────────────────────────────── */
+    #detail-panel {
+      width: 0;
+      flex-shrink: 0;
+      background: var(--bg-card);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: width 0.22s ease;
+    }
+    #app.panel-open #detail-panel {
+      width: 420px;
+    }
+    #detail-panel.detail-closed {
+      visibility: hidden;
+      pointer-events: none;
+      border-left: none;
+    }
+    #app.panel-open #detail-panel:not(.detail-closed) {
+      visibility: visible;
+      pointer-events: auto;
+      border-left: 1px solid var(--border);
+    }
+    #detail-panel-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      background: var(--bg-header);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    #detail-title {
+      flex: 1;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #detail-close-btn {
+      background: transparent;
+      color: var(--text-dim);
+      font-size: 16px;
+      padding: 2px 6px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    #detail-close-btn:hover { color: var(--text-primary); }
+    #detail-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      background: var(--bg-header);
+    }
+    .detail-tab {
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 13px;
+      padding: 8px 18px;
+      border-radius: 0;
+      border-bottom: 2px solid transparent;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .detail-tab:hover { color: var(--text-primary); }
+    .detail-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    #detail-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 16px;
+    }
+    #detail-body pre {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .detail-copy-btn {
+      display: block;
+      margin-bottom: 10px;
+      background: var(--bg-page);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      padding: 4px 12px;
+      font-size: 12px;
+    }
+    .detail-copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* metadata tab */
+    .meta-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .meta-table tr { border-bottom: 1px solid var(--border); }
+    .meta-table tr:last-child { border-bottom: none; }
+    .meta-table td {
+      padding: 6px 4px;
+      vertical-align: top;
+    }
+    .meta-key {
+      color: var(--text-dim);
+      font-size: 12px;
+      white-space: nowrap;
+      padding-right: 14px;
+      width: 1%;
+    }
+    .meta-val {
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      word-break: break-all;
+    }
+    .meta-val.null-val { color: var(--text-dim); font-style: italic; }
+    .meta-section {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-dim);
+      padding: 12px 0 4px;
+    }
+
+    /* ── Status bar ────────────────────────────────────────── */
+    #status-bar {
+      background: var(--bg-header);
+      border-top: 1px solid var(--border);
+      padding: 5px 20px;
+      font-size: 12px;
+      color: var(--text-dim);
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    /* ── Scrollbar ─────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+    /* ── Responsive ────────────────────────────────────────── */
+    @media (max-width: 600px) {
+      #config-form { grid-template-columns: 1fr; }
+      .field.full  { grid-column: 1; }
+      #controls    { gap: 6px; }
+      #app.panel-open #detail-panel {
+        width: 100%;
+      }
+      #detail-panel {
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        width: 100% !important;
+        height: 0;
+        border-left: none;
+        border-top: 1px solid var(--border);
+        z-index: 100;
+        transition: height 0.22s ease;
+      }
+      #detail-panel.detail-closed {
+        height: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+      #app.panel-open #detail-panel:not(.detail-closed) {
+        height: 60vh;
+        visibility: visible;
+        pointer-events: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+<div id="main-col">
+
+  <!-- ── Header ─────────────────────────────────────────────── -->
+  <header id="header">
+    <h1>AEM <span>Event Consumer</span></h1>
+    <div id="status-badge">
+      <span class="badge-dot"></span>
+      <span id="status-text">Disconnected</span>
+    </div>
+    <button id="theme-btn" onclick="toggleTheme()">&#9788;</button>
+  </header>
+
+  <!-- ── Banners ────────────────────────────────────────────── -->
+  <div id="banners"></div>
+
+  <!-- ── Config panel ───────────────────────────────────────── -->
+  <div id="config-panel">
+    <button id="config-toggle" onclick="toggleConfig()">
+      <span id="config-toggle-icon" class="open">&#9654;</span>
+      Connection Settings
+    </button>
+    <div id="config-form" class="visible">
+
+      <div class="field full">
+        <label for="smf-url">SMF WebSocket URL</label>
+        <input id="smf-url" type="text"
+          placeholder="wss://broker.example.com:8443"
+          autocomplete="off" spellcheck="false" />
+        <span class="field-hint">Plain WebSocket: <code>ws://host:8008</code> &nbsp;|&nbsp; TLS: <code>wss://host:8443</code></span>
+      </div>
+
+      <div class="field">
+        <label for="vpn">Message VPN</label>
+        <input id="vpn" type="text" placeholder="default" autocomplete="off" />
+      </div>
+
+      <div class="field">
+        <label for="queue">Queue Name</label>
+        <input id="queue" type="text" placeholder="my-queue" autocomplete="off" spellcheck="false" />
+      </div>
+
+      <div class="field">
+        <label for="username">Username</label>
+        <input id="username" type="text" autocomplete="off" />
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" type="password" autocomplete="current-password" />
+      </div>
+
+      <div class="field full">
+        <label class="remember-row">
+          <input type="checkbox" id="remember-pw" />
+          Remember password in this browser
+        </label>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Controls ───────────────────────────────────────────── -->
+  <div id="controls">
+    <button id="connect-btn"    class="btn-primary"   onclick="startConsumer()">Connect</button>
+    <button id="disconnect-btn" class="btn-secondary" onclick="stopConsumer()" disabled>Disconnect</button>
+    <button class="btn-secondary" onclick="exportMessages()">Export JSON</button>
+    <button class="btn-danger"    onclick="clearMessages()">Clear</button>
+    <button id="view-toggle-btn" class="btn-secondary" onclick="toggleView()">&#8864; Table View</button>
+    <span id="msg-count">0 messages</span>
+  </div>
+
+  <!-- ── Message feed ───────────────────────────────────────── -->
+  <div id="message-feed">
+    <div id="empty-state">
+      <div class="empty-icon">&#9741;</div>
+      <p>Configure the connection above and click <strong>Connect</strong></p>
+      <p style="margin-top:6px;font-size:13px">Messages will appear here in real time via SMF/WebSocket</p>
+    </div>
+  </div>
+
+  <!-- ── Status bar ─────────────────────────────────────────── -->
+  <div id="status-bar">
+    <span id="sb-transport">Protocol: SMF/WebSocket (solclientjs)</span>
+    <span id="sb-last">Last message: —</span>
+    <span id="sb-total">Total received: 0</span>
+  </div>
+
+</div><!-- #main-col -->
+
+<!-- ── Detail panel ─────────────────────────────────────────── -->
+<div id="detail-panel" class="detail-closed">
+  <div id="detail-panel-header">
+    <span id="detail-title">Message</span>
+    <button id="detail-close-btn" onclick="closeDetail()" title="Close">&#10005;</button>
+  </div>
+  <div id="detail-tabs">
+    <button class="detail-tab active" id="tab-payload" onclick="switchTab('payload')">Payload</button>
+    <button class="detail-tab"        id="tab-meta"    onclick="switchTab('meta')">Metadata</button>
+  </div>
+  <div id="detail-body"></div>
+</div>
+
+</div><!-- #app -->
+
+<!-- solclientjs loaded from unpkg CDN -->
+<script src="https://unpkg.com/solclientjs@10/lib-browser/solclient.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  /* ─── Constants ────────────────────────────────────────────── */
+  var STORAGE_KEY  = 'aem_consumer_v2';
+  var MAX_MESSAGES = 500;
+
+  /* ─── State ─────────────────────────────────────────────────── */
+  var solaceSession    = null;
+  var msgConsumer      = null;
+  var messages         = [];
+  var totalReceived    = 0;
+  var sdkReady         = false;
+  var currentView      = 'card';
+  var selectedMsgId    = null;
+  var activeTab        = 'payload';
+
+  /* ─── Utility ───────────────────────────────────────────────── */
+  function safeCall(fn) {
+    try { return fn(); } catch (e) { return null; }
+  }
+
+  /* ─── solclientjs initialisation ────────────────────────────── */
+  function initSdk() {
+    if (typeof solace === 'undefined') {
+      showBanner('error', 'SDK unavailable',
+        'solclientjs could not be loaded from CDN. ' +
+        'Check your internet connection and reload the page.');
+      return false;
+    }
+    if (!sdkReady) {
+      try {
+        var fp = new solace.SolclientFactoryProperties();
+        fp.logLevel = solace.LogLevel.WARN;
+        solace.SolclientFactory.init(fp);
+      } catch (e) {
+        /* already initialised on a prior call — safe to ignore */
+      }
+      sdkReady = true;
+    }
+    return true;
+  }
+
+  /* ─── Config persistence ─────────────────────────────────────── */
+  function saveConfig() {
+    var rememberPw = document.getElementById('remember-pw').checked;
+    var cfg = {
+      smfUrl:    document.getElementById('smf-url').value.trim(),
+      vpn:       document.getElementById('vpn').value.trim(),
+      queue:     document.getElementById('queue').value.trim(),
+      username:  document.getElementById('username').value.trim(),
+      rememberPw: rememberPw
+    };
+    if (rememberPw) {
+      cfg.password = document.getElementById('password').value;
+    }
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg)); } catch (e) {}
+  }
+
+  function loadConfig() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      var cfg = JSON.parse(raw);
+      if (cfg.smfUrl)   document.getElementById('smf-url').value   = cfg.smfUrl;
+      if (cfg.vpn)      document.getElementById('vpn').value       = cfg.vpn;
+      if (cfg.queue)    document.getElementById('queue').value     = cfg.queue;
+      if (cfg.username) document.getElementById('username').value  = cfg.username;
+      if (cfg.password) document.getElementById('password').value  = cfg.password;
+      document.getElementById('remember-pw').checked = !!cfg.rememberPw;
+    } catch (e) {}
+  }
+
+  /* ─── Connect ────────────────────────────────────────────────── */
+  window.startConsumer = function () {
+    clearBanners();
+    if (!initSdk()) return;
+
+    var smfUrl   = document.getElementById('smf-url').value.trim();
+    var vpn      = document.getElementById('vpn').value.trim()  || 'default';
+    var queue    = document.getElementById('queue').value.trim();
+    var username = document.getElementById('username').value.trim();
+    var password = document.getElementById('password').value;
+
+    if (!smfUrl)   { showBanner('error', 'Missing field', 'SMF WebSocket URL is required.'); return; }
+    if (!queue)    { showBanner('error', 'Missing field', 'Queue name is required.'); return; }
+    if (!username) { showBanner('error', 'Missing field', 'Username is required.'); return; }
+
+    saveConfig();
+    setStatus('connecting');
+    setBusy(true);
+
+    try {
+      solaceSession = solace.SolclientFactory.createSession({
+        url:              smfUrl,
+        vpnName:          vpn,
+        userName:         username,
+        password:         password,
+        connectRetries:   0,
+        reconnectRetries: 0
+      });
+    } catch (e) {
+      showBanner('error', 'Session creation failed', e.message || String(e));
+      setStatus('disconnected');
+      setBusy(false);
+      return;
+    }
+
+    solaceSession.on(solace.SessionEventCode.UP_NOTICE, function () {
+      setStatus('connected');
+      clearBanners();
+      showBanner('success', 'Session up', 'Connected to broker. Binding to queue "' + queue + '"…');
+      bindQueue(queue);
+    });
+
+    solaceSession.on(solace.SessionEventCode.CONNECT_FAILED_ERROR, function (evt) {
+      var msg = (evt && evt.infoStr) ? evt.infoStr : 'Could not reach the broker.';
+      showBanner('error', 'Connection failed',
+        msg + ' — verify the SMF WebSocket URL and credentials.');
+      setStatus('error');
+      setBusy(false);
+      solaceSession = null;
+    });
+
+    solaceSession.on(solace.SessionEventCode.DISCONNECTED, function () {
+      if (msgConsumer) {
+        try { msgConsumer.disconnect(); } catch (e) {}
+        msgConsumer = null;
+      }
+      setStatus('disconnected');
+      setBusy(false);
+      solaceSession = null;
+    });
+
+    solaceSession.on(solace.SessionEventCode.REJECTED_MESSAGE_ERROR, function (evt) {
+      showBanner('warning', 'Message rejected',
+        (evt && evt.infoStr) ? evt.infoStr : 'Broker rejected a published message.');
+    });
+
+    try {
+      solaceSession.connect();
+    } catch (e) {
+      showBanner('error', 'Connect error', e.message || String(e));
+      setStatus('error');
+      setBusy(false);
+      solaceSession = null;
+    }
+  };
+
+  /* ─── Bind to queue ──────────────────────────────────────────── */
+  function bindQueue(queueName) {
+    if (!solaceSession) return;
+
+    try {
+      msgConsumer = solaceSession.createMessageConsumer({
+        queueDescriptor: {
+          name: queueName,
+          type: solace.QueueType.QUEUE
+        },
+        acknowledgeMode:  solace.MessageConsumerAcknowledgeMode.CLIENT,
+        createIfMissing:  false
+      });
+    } catch (e) {
+      showBanner('error', 'Consumer creation failed', e.message || String(e));
+      return;
+    }
+
+    msgConsumer.on(solace.MessageConsumerEventName.UP, function () {
+      clearBanners();
+      showBanner('success', 'Ready', 'Consuming from queue "' + queueName + '"');
+    });
+
+    msgConsumer.on(solace.MessageConsumerEventName.DOWN, function () {
+      setStatus('disconnected');
+      setBusy(false);
+    });
+
+    msgConsumer.on(solace.MessageConsumerEventName.DOWN_ERROR, function (evt) {
+      showBanner('error', 'Consumer error',
+        (evt && evt.infoStr) ? evt.infoStr : 'Consumer went down unexpectedly.');
+      setStatus('error');
+      setBusy(false);
+    });
+
+    msgConsumer.on(solace.MessageConsumerEventName.CONNECT_FAILED_ERROR, function (evt) {
+      var detail = (evt && evt.infoStr) ? evt.infoStr : '';
+      showBanner('error', 'Queue bind failed',
+        'Could not bind to "' + queueName + '". ' + detail +
+        ' Check the queue name and client permissions.');
+      setStatus('error');
+      setBusy(false);
+    });
+
+    msgConsumer.on(solace.MessageConsumerEventName.MESSAGE, function (msg) {
+      onMessage(msg, queueName);
+      try { msg.acknowledge(); } catch (e) {}
+    });
+
+    try {
+      msgConsumer.connect();
+    } catch (e) {
+      showBanner('error', 'Consumer connect error', e.message || String(e));
+    }
+  }
+
+  /* ─── Disconnect ─────────────────────────────────────────────── */
+  window.stopConsumer = function () {
+    if (msgConsumer) {
+      try { msgConsumer.disconnect(); } catch (e) {}
+      msgConsumer = null;
+    }
+    if (solaceSession) {
+      try { solaceSession.disconnect(); } catch (e) {}
+      solaceSession = null;
+    }
+    setStatus('disconnected');
+    setBusy(false);
+  };
+
+  /* ─── Incoming message ───────────────────────────────────────── */
+  function onMessage(msg, queueName) {
+    var payload = '';
+    try {
+      var raw = msg.getBinaryAttachment();
+      if (raw instanceof Uint8Array || raw instanceof ArrayBuffer) {
+        var bytes = (raw instanceof ArrayBuffer) ? new Uint8Array(raw) : raw;
+        payload = new TextDecoder('utf-8').decode(bytes);
+      } else if (typeof raw === 'string') {
+        payload = raw;
+      } else {
+        var sdt = msg.getSdtContainer();
+        payload = sdt ? JSON.stringify(sdt) : '';
+      }
+    } catch (e) {
+      payload = '[unable to decode payload: ' + (e.message || e) + ']';
+    }
+
+    if (payload.length > 1048576) {
+      payload = payload.slice(0, 51200) + '\n\n[truncated — original payload exceeded 1 MB]';
+    }
+
+    var dest = null;
+    try { dest = msg.getDestination(); } catch (e) {}
+    var source = (dest && dest.getName) ? dest.getName() : queueName;
+
+    /* Extract Solace envelope metadata */
+    var userPropsMap = safeCall(function() {
+      var m = msg.getUserPropertyMap();
+      if (!m) return null;
+      var keys = m.getKeys();
+      if (!keys || !keys.length) return null;
+      var out = {};
+      for (var i = 0; i < keys.length; i++) {
+        var field = m.getField(keys[i]);
+        out[keys[i]] = field ? field.getValue() : null;
+      }
+      return out;
+    });
+
+    var deliveryModeRaw = safeCall(function() { return msg.getDeliveryMode(); });
+    var deliveryModeStr = null;
+    if (deliveryModeRaw !== null && typeof solace !== 'undefined' && solace.MessageDeliveryModeType) {
+      var dmt = solace.MessageDeliveryModeType;
+      if      (deliveryModeRaw === dmt.DIRECT)          deliveryModeStr = 'DIRECT';
+      else if (deliveryModeRaw === dmt.PERSISTENT)       deliveryModeStr = 'PERSISTENT';
+      else if (deliveryModeRaw === dmt.NON_PERSISTENT)   deliveryModeStr = 'NON_PERSISTENT';
+      else                                               deliveryModeStr = String(deliveryModeRaw);
+    }
+
+    addMessage(payload, source, new Date(), {
+      appMsgId:     safeCall(function() { return msg.getApplicationMessageId(); }),
+      appMsgType:   safeCall(function() { return msg.getApplicationMessageType(); }),
+      correlationId:safeCall(function() { return msg.getCorrelationId(); }),
+      senderTs:     safeCall(function() { return msg.getSenderTimestamp(); }),
+      senderId:     safeCall(function() { return msg.getSenderId(); }),
+      priority:     safeCall(function() { return msg.getPriority(); }),
+      deliveryMode: deliveryModeStr,
+      redelivered:  safeCall(function() { return msg.isRedelivered(); }),
+      guaranteedId: safeCall(function() { return msg.getGuaranteedMessageId(); }),
+      ttl:          safeCall(function() { return msg.getTimeToLive(); }),
+      expiration:   safeCall(function() { return msg.getExpiration(); }),
+      replyTo:      safeCall(function() { var r = msg.getReplyTo(); return r ? r.getName() : null; }),
+      contentType:  safeCall(function() { return msg.getHttpContentType(); }),
+      userProps:    userPropsMap
+    });
+  }
+
+  /* ─── Render a message card ──────────────────────────────────── */
+  function addMessage(payload, source, ts, meta) {
+    var empty = document.getElementById('empty-state');
+    if (empty) empty.remove();
+
+    totalReceived++;
+    var msgObj = {
+      id:      totalReceived,
+      ts:      ts.toISOString(),
+      source:  source,
+      payload: payload,
+      meta:    meta || {}
+    };
+    messages.push(msgObj);
+
+    if (messages.length > MAX_MESSAGES) {
+      messages.shift();
+      if (currentView === 'card') {
+        var feed = document.getElementById('message-feed');
+        if (feed.firstChild) feed.removeChild(feed.firstChild);
+      } else {
+        var tbody = document.getElementById('msg-tbody');
+        if (tbody && tbody.firstChild) tbody.removeChild(tbody.firstChild);
+      }
+    }
+
+    if (currentView === 'card') {
+      appendCard(msgObj);
+    } else {
+      appendRow(msgObj);
+    }
+
+    updateCounters();
+    document.getElementById('sb-last').textContent = 'Last message: ' + formatTime(ts);
+  }
+
+  /* ─── Card renderer ──────────────────────────────────────────── */
+  function appendCard(msgObj) {
+    var rendered = renderPayload(msgObj.payload);
+    var id = 'msg-' + msgObj.id;
+    var card = document.createElement('div');
+    card.className = 'msg-card';
+    card.id = id;
+    card.setAttribute('data-msgid', msgObj.id);
+    card.innerHTML =
+      '<div class="msg-header">'                                                          +
+        '<span class="msg-time">'   + formatTime(new Date(msgObj.ts)) + '</span>'        +
+        '<span class="msg-source">' + escapeHtml(msgObj.source)       + '</span>'        +
+        '<span class="msg-type">'   + (rendered.json ? 'JSON' : 'text') + '</span>'      +
+        '<span class="msg-actions">'                                                      +
+          '<button class="msg-action-btn" title="Copy payload"'                          +
+            ' onclick="copyCard(\'' + id + '\', event)">&#10697;</button>'               +
+          '<button class="msg-action-btn" title="Dismiss"'                               +
+            ' onclick="dismissCard(\'' + id + '\', event)">&#10005;</button>'            +
+        '</span>'                                                                         +
+      '</div>'                                                                            +
+      '<div class="msg-body"><pre>' + rendered.html + '</pre></div>';
+
+    card.addEventListener('click', function(e) {
+      if (e.target.closest('.msg-action-btn')) return;
+      openDetail(msgObj.id);
+    });
+
+    var feedEl = document.getElementById('message-feed');
+    feedEl.appendChild(card);
+    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  /* ─── Table renderer ─────────────────────────────────────────── */
+  function ensureTable() {
+    var feed = document.getElementById('message-feed');
+    var table = document.getElementById('msg-table');
+    if (!table) {
+      table = document.createElement('table');
+      table.id = 'msg-table';
+      table.innerHTML =
+        '<thead><tr>' +
+          '<th class="tbl-num">#</th>' +
+          '<th class="tbl-time">Time</th>' +
+          '<th class="tbl-src">Source</th>' +
+          '<th class="tbl-type">Type</th>' +
+          '<th class="tbl-preview">Payload Preview</th>' +
+        '</tr></thead>' +
+        '<tbody id="msg-tbody"></tbody>';
+      feed.appendChild(table);
+    }
+    return document.getElementById('msg-tbody');
+  }
+
+  function appendRow(msgObj) {
+    var tbody = ensureTable();
+    var rendered = renderPayload(msgObj.payload);
+    var preview = msgObj.payload.trim().replace(/\s+/g, ' ').slice(0, 200);
+    var row = document.createElement('tr');
+    row.setAttribute('data-msgid', msgObj.id);
+    row.innerHTML =
+      '<td class="tbl-num">'     + msgObj.id                            + '</td>' +
+      '<td class="tbl-time">'    + formatTime(new Date(msgObj.ts))      + '</td>' +
+      '<td class="tbl-src"><span>' + escapeHtml(msgObj.source) + '</span></td>'   +
+      '<td class="tbl-type"><span>' + (rendered.json ? 'JSON' : 'text') + '</span></td>' +
+      '<td class="tbl-preview">' + escapeHtml(preview)                  + '</td>';
+    row.addEventListener('click', function() { openDetail(msgObj.id); });
+    tbody.appendChild(row);
+    row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  /* ─── View toggle ────────────────────────────────────────────── */
+  window.toggleView = function() {
+    currentView = currentView === 'card' ? 'table' : 'card';
+    var btn = document.getElementById('view-toggle-btn');
+    btn.textContent = currentView === 'card' ? '⡤ Table View' : '▤ Card View';
+    btn.classList.toggle('active', currentView === 'table');
+    rebuildFeed();
+  };
+
+  function rebuildFeed() {
+    var feed = document.getElementById('message-feed');
+    feed.innerHTML = '';
+    if (currentView === 'table') {
+      feed.classList.add('table-mode');
+    } else {
+      feed.classList.remove('table-mode');
+    }
+
+    if (!messages.length) {
+      feed.innerHTML =
+        '<div id="empty-state">' +
+          '<div class="empty-icon">&#9741;</div>' +
+          '<p>No messages — waiting for the next one…</p>' +
+        '</div>';
+      return;
+    }
+
+    for (var i = 0; i < messages.length; i++) {
+      if (currentView === 'card') {
+        appendCard(messages[i]);
+      } else {
+        appendRow(messages[i]);
+      }
+    }
+
+    /* restore selection highlight */
+    if (selectedMsgId !== null) {
+      highlightSelected(selectedMsgId);
+    }
+  }
+
+  /* ─── Detail panel ───────────────────────────────────────────── */
+  window.openDetail = function(msgId) {
+    var msgObj = null;
+    for (var i = 0; i < messages.length; i++) {
+      if (messages[i].id === msgId) { msgObj = messages[i]; break; }
+    }
+    if (!msgObj) return;
+
+    selectedMsgId = msgId;
+    highlightSelected(msgId);
+
+    document.getElementById('detail-title').textContent = 'Message #' + msgId + ' — ' + msgObj.source;
+    renderDetailTab(msgObj, activeTab);
+
+    document.getElementById('detail-panel').classList.remove('detail-closed');
+    document.getElementById('app').classList.add('panel-open');
+  };
+
+  window.closeDetail = function() {
+    document.getElementById('detail-panel').classList.add('detail-closed');
+    document.getElementById('app').classList.remove('panel-open');
+    selectedMsgId = null;
+    clearSelection();
+  };
+
+  window.switchTab = function(tab) {
+    activeTab = tab;
+    document.getElementById('tab-payload').classList.toggle('active', tab === 'payload');
+    document.getElementById('tab-meta').classList.toggle('active', tab === 'meta');
+
+    if (selectedMsgId === null) return;
+    var msgObj = null;
+    for (var i = 0; i < messages.length; i++) {
+      if (messages[i].id === selectedMsgId) { msgObj = messages[i]; break; }
+    }
+    if (msgObj) renderDetailTab(msgObj, tab);
+  };
+
+  function renderDetailTab(msgObj, tab) {
+    var body = document.getElementById('detail-body');
+    if (tab === 'payload') {
+      var rendered = renderPayload(msgObj.payload);
+      body.innerHTML =
+        '<button class="detail-copy-btn" onclick="copyDetailPayload()">&#10697; Copy Payload</button>' +
+        '<pre id="detail-pre">' + rendered.html + '</pre>';
+    } else {
+      body.innerHTML = renderMetaTable(msgObj);
+    }
+  }
+
+  window.copyDetailPayload = function() {
+    var pre = document.getElementById('detail-pre');
+    if (!pre) return;
+    navigator.clipboard.writeText(pre.innerText).then(function() {
+      var btn = document.querySelector('.detail-copy-btn');
+      if (btn) {
+        var orig = btn.innerHTML;
+        btn.innerHTML = '&#10003; Copied';
+        setTimeout(function() { btn.innerHTML = orig; }, 1200);
+      }
+    }).catch(function() {});
+  };
+
+  function renderMetaTable(msgObj) {
+    var m = msgObj.meta || {};
+    var ts = new Date(msgObj.ts);
+
+    function row(key, val) {
+      var isNull = (val === null || val === undefined || val === '');
+      var display = isNull ? 'null' : escapeHtml(String(val));
+      return '<tr>' +
+        '<td class="meta-key">' + escapeHtml(key) + '</td>' +
+        '<td class="meta-val' + (isNull ? ' null-val' : '') + '">' + display + '</td>' +
+        '</tr>';
+    }
+
+    function section(label) {
+      return '<tr><td colspan="2" class="meta-section">' + escapeHtml(label) + '</td></tr>';
+    }
+
+    var html = '<table class="meta-table">';
+
+    html += section('Timing');
+    html += row('Received at',    ts.toISOString());
+    html += row('Sender timestamp', m.senderTs !== null && m.senderTs !== undefined
+      ? new Date(m.senderTs).toISOString() + ' (' + m.senderTs + ')'
+      : null);
+    html += row('Expiration',     m.expiration !== null && m.expiration !== undefined
+      ? new Date(m.expiration).toISOString() + ' (' + m.expiration + ')'
+      : null);
+    html += row('TTL (ms)',       m.ttl);
+
+    html += section('Routing');
+    html += row('Destination',    msgObj.source);
+    html += row('Reply-To',       m.replyTo);
+    html += row('Delivery mode',  m.deliveryMode);
+    html += row('Redelivered',    m.redelivered !== null && m.redelivered !== undefined ? String(m.redelivered) : null);
+    html += row('Priority',       m.priority !== null && m.priority !== undefined && m.priority !== -1 ? m.priority : null);
+
+    html += section('Identification');
+    html += row('App message ID',   m.appMsgId);
+    html += row('App message type', m.appMsgType);
+    html += row('Correlation ID',   m.correlationId);
+    html += row('Guaranteed msg ID',m.guaranteedId !== null && m.guaranteedId !== undefined ? String(m.guaranteedId) : null);
+    html += row('Sender ID',        m.senderId);
+
+    html += section('Content');
+    html += row('Content-Type',   m.contentType);
+
+    if (m.userProps && typeof m.userProps === 'object' && Object.keys(m.userProps).length) {
+      html += section('User Properties');
+      var keys = Object.keys(m.userProps);
+      for (var i = 0; i < keys.length; i++) {
+        html += row(keys[i], m.userProps[keys[i]]);
+      }
+    }
+
+    html += '</table>';
+    return html;
+  }
+
+  function highlightSelected(msgId) {
+    clearSelection();
+    if (currentView === 'card') {
+      var card = document.querySelector('.msg-card[data-msgid="' + msgId + '"]');
+      if (card) card.classList.add('selected');
+    } else {
+      var row = document.querySelector('#msg-tbody tr[data-msgid="' + msgId + '"]');
+      if (row) row.classList.add('selected');
+    }
+  }
+
+  function clearSelection() {
+    document.querySelectorAll('.msg-card.selected, #msg-tbody tr.selected').forEach(function(el) {
+      el.classList.remove('selected');
+    });
+  }
+
+  /* ─── Payload renderer ───────────────────────────────────────── */
+  function renderPayload(raw) {
+    var s = raw.trim();
+    try {
+      var obj = JSON.parse(s);
+      return { json: true, html: syntaxHighlight(JSON.stringify(obj, null, 2)) };
+    } catch (e) {
+      return { json: false, html: escapeHtml(s) };
+    }
+  }
+
+  function syntaxHighlight(json) {
+    return escapeHtml(json).replace(
+      /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+      function (match) {
+        var cls;
+        if (/^"/.test(match)) {
+          cls = /:$/.test(match) ? 'json-key' : 'json-string';
+        } else if (/true|false/.test(match)) {
+          cls = 'json-bool';
+        } else if (/null/.test(match)) {
+          cls = 'json-null';
+        } else {
+          cls = 'json-number';
+        }
+        return '<span class="' + cls + '">' + match + '</span>';
+      }
+    );
+  }
+
+  /* ─── Card actions ───────────────────────────────────────────── */
+  window.copyCard = function (id, event) {
+    if (event) event.stopPropagation();
+    var card = document.getElementById(id);
+    if (!card) return;
+    var pre = card.querySelector('.msg-body pre');
+    if (!pre) return;
+    navigator.clipboard.writeText(pre.innerText).then(function () {
+      var btn = card.querySelector('.msg-action-btn');
+      if (btn) {
+        var orig = btn.innerHTML;
+        btn.innerHTML = '&#10003;';
+        setTimeout(function () { btn.innerHTML = orig; }, 1200);
+      }
+    }).catch(function () {});
+  };
+
+  window.dismissCard = function (id, event) {
+    if (event) event.stopPropagation();
+    var el = document.getElementById(id);
+    if (el) {
+      var dismissedId = parseInt(el.getAttribute('data-msgid'), 10);
+      el.remove();
+      messages = messages.filter(function(m) { return m.id !== dismissedId; });
+      if (selectedMsgId === dismissedId) closeDetail();
+    }
+    updateCounters();
+  };
+
+  window.clearMessages = function () {
+    messages = [];
+    selectedMsgId = null;
+    closeDetail();
+    var feed = document.getElementById('message-feed');
+    feed.classList.remove('table-mode');
+    feed.innerHTML =
+      '<div id="empty-state">' +
+        '<div class="empty-icon">&#9741;</div>' +
+        '<p>No messages — waiting for the next one…</p>' +
+      '</div>';
+    updateCounters();
+  };
+
+  /* ─── Export ─────────────────────────────────────────────────── */
+  window.exportMessages = function () {
+    if (!messages.length) {
+      showBanner('warning', 'Nothing to export', 'The message feed is empty.');
+      return;
+    }
+    var blob = new Blob([JSON.stringify(messages, null, 2)], { type: 'application/json' });
+    var url  = URL.createObjectURL(blob);
+    var a    = document.createElement('a');
+    a.href     = url;
+    a.download = 'aem-messages-' + new Date().toISOString().slice(0,19).replace(/:/g,'-') + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 5000);
+  };
+
+  /* ─── Theme ──────────────────────────────────────────────────── */
+  window.toggleTheme = function () {
+    var isLight = document.documentElement.classList.toggle('light');
+    try { localStorage.setItem('aem_theme', isLight ? 'light' : 'dark'); } catch (e) {}
+  };
+
+  function applyTheme() {
+    try {
+      if (localStorage.getItem('aem_theme') === 'light') {
+        document.documentElement.classList.add('light');
+      }
+    } catch (e) {}
+  }
+
+  /* ─── Config panel toggle ────────────────────────────────────── */
+  window.toggleConfig = function () {
+    var form = document.getElementById('config-form');
+    var icon = document.getElementById('config-toggle-icon');
+    var open = form.classList.toggle('visible');
+    icon.classList.toggle('open', open);
+  };
+
+  /* ─── Status helpers ─────────────────────────────────────────── */
+  function setStatus(state) {
+    var badge  = document.getElementById('status-badge');
+    var dot    = badge.querySelector('.badge-dot');
+    var label  = document.getElementById('status-text');
+    ['connected','connecting','error'].forEach(function (c) { badge.classList.remove(c); });
+    dot.classList.remove('pulse');
+
+    if      (state === 'connected')  { badge.classList.add('connected');  label.textContent = 'Connected'; }
+    else if (state === 'connecting') { badge.classList.add('connecting'); label.textContent = 'Connecting…'; dot.classList.add('pulse'); }
+    else if (state === 'error')      { badge.classList.add('error');      label.textContent = 'Error'; }
+    else                             { label.textContent = 'Disconnected'; }
+  }
+
+  function setBusy(isBusy) {
+    document.getElementById('connect-btn').disabled    =  isBusy;
+    document.getElementById('disconnect-btn').disabled = !isBusy;
+  }
+
+  function updateCounters() {
+    var n = messages.length;
+    document.getElementById('msg-count').textContent  = n + (n === 1 ? ' message' : ' messages');
+    document.getElementById('sb-total').textContent   = 'Total received: ' + totalReceived;
+  }
+
+  /* ─── Banner helpers ─────────────────────────────────────────── */
+  var BANNER_ICONS = { error: '&#9888;', warning: '&#9888;', success: '&#10003;', info: '&#8505;' };
+
+  function showBanner(type, title, body) {
+    var el = document.createElement('div');
+    el.className = 'banner ' + type;
+    el.innerHTML =
+      '<span class="banner-icon">' + (BANNER_ICONS[type] || BANNER_ICONS.info) + '</span>' +
+      '<span class="banner-body"><strong>' + escapeHtml(title) + '</strong> ' + escapeHtml(body) + '</span>' +
+      '<button class="banner-close" onclick="this.parentElement.remove()">&#10005;</button>';
+    document.getElementById('banners').appendChild(el);
+  }
+
+  function clearBanners() {
+    document.getElementById('banners').innerHTML = '';
+  }
+
+  /* ─── Utilities ──────────────────────────────────────────────── */
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g,  '&amp;')
+      .replace(/</g,  '&lt;')
+      .replace(/>/g,  '&gt;')
+      .replace(/"/g,  '&quot;');
+  }
+
+  function formatTime(d) {
+    return d.toLocaleTimeString('en-GB', { hour12: false }) +
+      '.' + String(d.getMilliseconds()).padStart(3, '0');
+  }
+
+  /* ─── file:// origin notice ──────────────────────────────────── */
+  function checkOrigin() {
+    if (location.protocol === 'file:') {
+      showBanner('info', 'Running from disk',
+        'WebSocket (SMF) connections work fine from file://. ' +
+        'If the CDN script fails to load, serve with: python3 -m http.server 8080');
+    }
+  }
+
+  /* ─── Boot ───────────────────────────────────────────────────── */
+  applyTheme();
+  loadConfig();
+  checkOrigin();
+
+  /* Persist config on any field change */
+  ['smf-url', 'vpn', 'queue', 'username', 'remember-pw'].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('change', saveConfig);
+  });
+
+}());
+</script>
+</body>
+</html>
