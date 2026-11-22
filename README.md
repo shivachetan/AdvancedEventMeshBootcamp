@@ -96,7 +96,7 @@ SAP Integration Suite, advanced event mesh
 
 ### Deep Dive Topics 
 
-The Deep Dive track contains an advanced topic that typically requires at least advanced know-how.
+The Deep Dive track contains advanced topics that typically require at least advanced know-how. You can pick a single topic, or work on both topics in whatever order you like.
 
 - [Exercise 6 - Micro-Integrations](exercise/ex6/README.md)
 
@@ -105,6 +105,13 @@ The Deep Dive track contains an advanced topic that typically requires at least 
     - [Exercise 6.3 - Getting familiar with the structure of a Micro-Integration](exercise/ex6/README.md#63---getting-familiar-with-the-structure-of-a-micro-integration)
     - [Exercise 6.4 - Configuring and deploying a flow in an SFTP Source Micro-Integration](exercise/ex6/README.md#64---configuring-and-deploying-a-flow-in-an-sftp-source-micro-integration)
     - [Exercise 6.5 - Micro-Integration Licensing (Optional)](exercise/ex6/README.md#65---micro-integration-licensing-optional)
+
+- [Exercise 7 - Learn Publish-Subscribe pattern using S/4 HANA, AEM and Cloud Integration](exercise/ex7/README.md)
+
+    - [Exercise 7.1 - Create new Queue in Advanced Event Mesh for second subscriber](exercise/ex7/README.md#exercise-71---create-new-queue-in-advanced-event-mesh-for-second-subscriber)
+    - [Exercise 7.2 - Configure First Subscriber using Cloud Integration capability of SAP Integration Suite](exercise/ex7/README.md#exercise-72---configure-first-subscriber-using-cloud-integration-capability-of-sap-integration-suite)
+    - [Exercise 7.3 - Configure Standalone Web Application as Second Subscriber](exercise/ex7/README.md#exercise-73-configure-standalone-web-application-as-second-subscriber)
+    - [Exercise 7.4 - Publish a business partner event using the try me! tool to the topic](exercise/ex7/README.md#exercise-74-publish-a-business-partner-event-using-the-try-me-tool-to-the-topic)
 
 ## User Data and Password
 
